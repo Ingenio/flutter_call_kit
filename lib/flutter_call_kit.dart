@@ -10,17 +10,17 @@ import 'package:flutter/widgets.dart';
 /// Note: on iOS `callUUID` is not defined as the call is not yet managed by CallKit. You have to generate your own and call `startCall`.
 /// [uuid] - The UUID of the call that is to be answered
 /// [handle] - Phone number of the callee see [HandleType] for other options
-typedef Future<dynamic> OnReceiveStartCallAction(String uuid, String handle);
+typedef Future<dynamic> OnReceiveStartCallAction(String? uuid, String? handle);
 
 /// User answer the incoming call
 ///
 /// [uuid]- The UUID of the call that is to be answered.
-typedef Future<dynamic> OnAnswerCallAction(String uuid);
+typedef Future<dynamic> OnAnswerCallAction(String? uuid);
 
 /// User finish the call.
 ///
 /// [uuid]- The UUID of the call that is to be ended.
-typedef Future<dynamic> OnEndCallAction(String uuid);
+typedef Future<dynamic> OnEndCallAction(String? uuid);
 
 /// The [AudioSession] has been activated by **FlutterCallKit**.
 ///
@@ -35,28 +35,28 @@ typedef Future<dynamic> OnDeactivateAudioSession();
 ///
 /// you might want to do following things when receiving this event:
 /// Start playing ringback if it is an outgoing call
-typedef Future<dynamic> OnIncomingCall(String error, String uuid, String handle,
-    String localizedCallerName, bool fromPushKit);
+typedef Future<dynamic> OnIncomingCall(String? error, String? uuid,
+    String? handle, String? localizedCallerName, bool? fromPushKit);
 
 /// A call was muted by the system or the user:
 ///
 /// [muted] - whether the call was muted
 /// [uuid] - The UUID of the call.
-typedef Future<dynamic> OnMuted(bool muted, String uuid);
+typedef Future<dynamic> OnMuted(bool? muted, String? uuid);
 
 /// A call was held or unheld by the current user
 ///
 /// [hold] - whether the call was held
 /// [uuid] - The UUID of the call.
-typedef Future<dynamic> OnHold(bool hold, String uuid);
+typedef Future<dynamic> OnHold(bool? hold, String? uuid);
 
 /// Used to type a number on his dialer
 ///
 /// [digits] - The digits that emitted the dtmf tone
 /// [uuid] - The UUID of the call.
-typedef Future<dynamic> OnDTMF(String digits, String uuid);
+typedef Future<dynamic> OnDTMF(String? digits, String? uuid);
 
-typedef Future<dynamic> OnStartCall(String handle, bool video);
+typedef Future<dynamic> OnStartCall(String? handle, bool? video);
 
 enum HandleType { phoneNumber, generic, email }
 
@@ -109,8 +109,8 @@ class IOSOptions {
       "appName": appName,
       "imageName": imageName,
       "ringtoneSound": ringtoneSound,
-      "maximumCallGroups": maximumCallGroups?.toString(),
-      "maximumCallsPerCallGroup": maximumCallsPerCallGroup?.toString(),
+      "maximumCallGroups": maximumCallGroups.toString(),
+      "maximumCallsPerCallGroup": maximumCallsPerCallGroup.toString(),
       "supportsVideo": supportsVideo,
       "includesCallsInRecents": includesCallsInRecents,
     };
@@ -128,42 +128,42 @@ class FlutterCallKit {
 
   final MethodChannel _channel;
 
-  OnReceiveStartCallAction _didReceiveStartCallAction;
+  OnReceiveStartCallAction? _didReceiveStartCallAction;
 
   /// this means something big changed, so tell the Dart side. The Dart side should
   /// probably respond by hanging up all calls.
-  VoidCallback _onProviderReset;
+  VoidCallback? _onProviderReset;
 
-  OnAnswerCallAction _performAnswerCallAction;
+  OnAnswerCallAction? _performAnswerCallAction;
 
-  OnEndCallAction _performEndCallAction;
+  OnEndCallAction? _performEndCallAction;
 
-  OnActivateAudioSession _didActivateAudioSession;
+  OnActivateAudioSession? _didActivateAudioSession;
 
-  OnDeactivateAudioSession _didDeactivateAudioSession;
+  OnDeactivateAudioSession? _didDeactivateAudioSession;
 
-  OnIncomingCall _didDisplayIncomingCall;
+  OnIncomingCall? _didDisplayIncomingCall;
 
-  OnMuted _didPerformSetMutedCallAction;
-  OnHold _didToggleHoldAction;
-  OnDTMF _didPerformDTMFAction;
+  OnMuted? _didPerformSetMutedCallAction;
+  OnHold? _didToggleHoldAction;
+  OnDTMF? _didPerformDTMFAction;
 
-  OnStartCall _handleStartCallNotification;
+  OnStartCall? _handleStartCallNotification;
 
   /// Configures with [options] and sets up handlers for incoming messages.
   void configure(
     IOSOptions options, {
-    OnReceiveStartCallAction didReceiveStartCallAction,
-    VoidCallback onProviderReset,
-    OnAnswerCallAction performAnswerCallAction,
-    OnEndCallAction performEndCallAction,
-    OnActivateAudioSession didActivateAudioSession,
-    OnDeactivateAudioSession didDeactivateAudioSession,
-    OnIncomingCall didDisplayIncomingCall,
-    OnMuted didPerformSetMutedCallAction,
-    OnDTMF didPerformDTMFAction,
-    OnHold didToggleHoldAction,
-    OnStartCall handleStartCallNotification,
+    OnReceiveStartCallAction? didReceiveStartCallAction,
+    VoidCallback? onProviderReset,
+    OnAnswerCallAction? performAnswerCallAction,
+    OnEndCallAction? performEndCallAction,
+    OnActivateAudioSession? didActivateAudioSession,
+    OnDeactivateAudioSession? didDeactivateAudioSession,
+    OnIncomingCall? didDisplayIncomingCall,
+    OnMuted? didPerformSetMutedCallAction,
+    OnDTMF? didPerformDTMFAction,
+    OnHold? didToggleHoldAction,
+    OnStartCall? handleStartCallNotification,
   }) {
     if (!Platform.isIOS) {
       return;
@@ -190,7 +190,7 @@ class FlutterCallKit {
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _didReceiveStartCallAction(map["callUUID"], map["handle"]);
+        return _didReceiveStartCallAction!(map["callUUID"], map["handle"]);
       case "onProviderReset":
         if (_onProviderReset == null) {
           return null;
@@ -237,7 +237,7 @@ class FlutterCallKit {
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _didPerformDTMFAction(map["digits"], map["callUUID"]);
+        return _didPerformDTMFAction!(map["digits"], map["callUUID"]);
       case "didToggleHoldAction":
         if (_didToggleHoldAction == null) {
           return null;
@@ -374,20 +374,20 @@ class FlutterCallKit {
   /// Checks if there are any active calls on the device and returns a future with a boolean value
   /// (`true` if there're active calls, `false` otherwise).
   ///
-  Future<bool> checkIfBusy() async {
+  Future<bool?> checkIfBusy() async {
     if (!Platform.isIOS) {
       return null;
     }
-    return await _channel.invokeMethod<void>('checkIfBusy') as bool;
+    return await _channel.invokeMethod<void>('checkIfBusy') as bool?;
   }
 
   /// Checks if the device speaker is on and returns a promise with a boolean value (`true` if speaker is on, `false` otherwise).
   ///
-  Future<bool> checkSpeaker() async {
+  Future<bool?> checkSpeaker() async {
     if (!Platform.isIOS) {
       return null;
     }
-    return await _channel.invokeMethod<void>('checkSpeaker') as bool;
+    return await _channel.invokeMethod<void>('checkSpeaker') as bool?;
   }
 
   /// Use this to update the display after an outgoing call has started.

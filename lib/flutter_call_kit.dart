@@ -195,43 +195,43 @@ class FlutterCallKit {
         if (_onProviderReset == null) {
           return null;
         }
-        return _onProviderReset();
+        return _onProviderReset?.call();
       case "performAnswerCallAction":
         if (_performAnswerCallAction == null) {
           return null;
         }
-        return _performAnswerCallAction(
+        return _performAnswerCallAction!(
             call.arguments.cast<String, dynamic>()["callUUID"]);
       case "performEndCallAction":
         if (_performEndCallAction == null) {
           return null;
         }
-        return _performEndCallAction(
+        return _performEndCallAction!(
             call.arguments.cast<String, dynamic>()["callUUID"]);
       case "didActivateAudioSession":
         if (_didActivateAudioSession == null) {
           return null;
         }
-        return _didActivateAudioSession();
+        return _didActivateAudioSession?.call();
       case "didDeactivateAudioSession":
         if (_didDeactivateAudioSession == null) {
           return null;
         }
-        return _didDeactivateAudioSession();
+        return _didDeactivateAudioSession?.call();
       case "didDisplayIncomingCall":
         if (_didDisplayIncomingCall == null) {
           print("_didDisplayIncomingCall is null");
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _didDisplayIncomingCall(map["error"], map["callUUID"],
+        return _didDisplayIncomingCall!(map["error"], map["callUUID"],
             map["handle"], map["localizedCallerName"], map["fromPushKit"]);
       case "didPerformSetMutedCallAction":
         if (_didPerformSetMutedCallAction == null) {
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _didPerformSetMutedCallAction(map["muted"], map["callUUID"]);
+        return _didPerformSetMutedCallAction!(map["muted"], map["callUUID"]);
       case "didPerformDTMFAction":
         if (_didPerformDTMFAction == null) {
           return null;
@@ -243,13 +243,13 @@ class FlutterCallKit {
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _didToggleHoldAction(map["hold"], map["callUUID"]);
+        return _didToggleHoldAction!(map["hold"], map["callUUID"]);
       case "handleStartCallNotification":
         if (_handleStartCallNotification == null) {
           return null;
         }
         Map map = call.arguments.cast<String, dynamic>();
-        return _handleStartCallNotification(map["handle"], map["video"]);
+        return _handleStartCallNotification!(map["handle"], map["video"]);
       default:
         throw UnsupportedError("Unrecognized JSON message");
     }
